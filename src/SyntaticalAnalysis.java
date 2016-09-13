@@ -3,6 +3,8 @@ import java.io.IOException;
 public class SyntaticalAnalysis {
 	private LexicalAnalysis la;
 	private Lexema current;
+	
+	private Map <String, Variable> variables = new HashMap <String, Variable>(); //ficar esperto !!!!
 
 	public SyntaticalAnalysis(LexicalAnalysis la) throws IOException {
 		this.la = la;
@@ -29,7 +31,16 @@ public class SyntaticalAnalysis {
 	}
 
 	void procVar() throws IOException{
+		String varName = current.token();
 		matchToken(TokenType.VAR);
+		
+		Variable v = variables.get(varName);
+		if(v==null){
+			v=new variable(varName);
+			variables.put(varName,v);
+		}
+		return v;
+		
 	}
 
 	void procNumber() throws IOException{
@@ -176,9 +187,14 @@ public class SyntaticalAnalysis {
 		matchToken(TokenType.COMMA);
 	}
 
-	void procSHOW() throws IOException {
+	ShowCommand procSHOW() throws IOException {
 		matchToken(TokenType.SHOW);
 		matchToken(TokenType.PAR_OPEN);
+		Value <?> v = procText();
+		matchToken(TokenType.PAR_CLOSE);
+		matchToken(TokenType.COMMA);
+		ShowCommand c = new ShowCommand (v,lex.getLine());
+		return c;
 	}
 
 	void procFOR() throws IOException {
